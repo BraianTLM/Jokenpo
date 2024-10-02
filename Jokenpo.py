@@ -176,3 +176,4 @@ def jogar_jogo():
         limpar_tela()
 
 jogar_jogo()
+
