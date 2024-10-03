@@ -6,14 +6,14 @@ from collections import Counter
 
 init(autoreset=True)
 
-# Histórico das escolhas do jogador para análise de desmpenho
+# History of player choices for performance analysis
 player1_choices = []
 computer_choices = []
 
-def limpar_tela():
+def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def tela_principal():
+def main_screen():
     print(Fore.YELLOW + '=' * 60)
     print(Fore.YELLOW + '                   Vamos jogar Jokenpo               ')
     print(Fore.YELLOW + '=' * 60)
@@ -26,30 +26,30 @@ def tela_principal():
     {Fore.GREEN}[4] {Fore.CYAN}Spock
     ''')
 
-def validar_entrada(player_input):
+def validate_input(player_input):
     if player_input not in [0, 1, 2, 3, 4]:
         print(Fore.RED + 'Jogada inválida! Por favor, escolha entre 0 e 4.')
         return False
     return True
 
-def modo_facil():
+def easy_mode():
     return random.randint(0,4)
 
-def modo_medio():
+def medium_mode():
     if len(player1_choices) >= 2:
-        # O computador tenta prever a próxima jogada com base nas escolhas anteriores
+        # The computer tries to predict the next move based on previous choices
         last_choice = player1_choices[-1]
-        return (last_choice + 1) % 5  # Escolhe a próxima jogada que venceria a ultima
+        return (last_choice + 1) % 5  # Choose the next move that would beat the last one
     return random.randint(0, 4)
 
-def modo_dificil():
+def hard_mode():
     if len(player1_choices) >= 3:
-        # O computador tenta "aprender" o padrão do jogador e explora suas fraquezas
+        # The computer tries to "learn" the player's pattern and exploits his weaknesses
         most_common_choice = Counter(player1_choices).most_common(1)[0][0]
         return (most_common_choice + 1) % 5
     return random.randint(0, 4)
 
-def exibir_escolhas(player1, player2, is_computer=False):
+def display_choice(player1, player2, is_computer=False):
     choices = ['Pedra', 'Papel', 'Tesoura', 'Lagarto', 'Spock']
     print(Fore.CYAN + f'Jogador 1 escolheu: {choices[player1]}')
     if is_computer:
@@ -57,14 +57,14 @@ def exibir_escolhas(player1, player2, is_computer=False):
     else:
         print(Fore.CYAN + f'Jogador 2 escolheu: {choices[player2]}')
 
-def determinar_vencedor(player1, player2):
-    # Tabela de vitória Pedra(0), Papel(1), Tesoura(2), Lagarto(3), Spock(4)
+def determine_winner(player1, player2):
+    # Victory Table Rock(0), Paper(1), Scissors(2), Lizard(3), Spock(4)
     win_scenarios = {
-        0: [2, 3],  # Pedra vence Tesoura e Lagarto
-        1: [0, 4],  # Papel vence Pedra e Spock
-        2: [1, 3],  # Tesoura vence Papel e Lagarto
-        3: [1, 4],  # Lagarto vence Papel e Spock
-        4: [0, 2]   # Spock vence Pedra e Tesoura
+        0: [2, 3],  # Rock beats Scissors and Lizard
+        1: [0, 4],  # Paper beats Rock and Spock
+        2: [1, 3],  # Scissors beat Paper and Lizard
+        3: [1, 4],  # Lizard beats Paper and Spock
+        4: [0, 2]   # Spock wins Rock and Scissors
     }
 
     if player1 == player2:
@@ -77,7 +77,7 @@ def determinar_vencedor(player1, player2):
         print(Fore.GREEN + 'Jogador 2 venceu')
         return 2
 
-def animacao():
+def animation():
     print(Fore.YELLOW + 'JO')
     sleep(1)
     print(Fore.YELLOW + 'KEN')
@@ -85,7 +85,7 @@ def animacao():
     print(Fore.YELLOW + 'PO!')
     sleep(1)
 
-def analisar_performance():
+def analyze_performance():
     total_games = len(player1_choices)
     if total_games == 0:
         return
@@ -100,27 +100,27 @@ def analisar_performance():
         {Fore.CYAN} Empates: {draws / total_games * 100:.2f}%
         ''')
 
-def jogar_jogo():
+def play_game():
     score_player1 = 0
     score_player2 = 0
 
     while True:
-        tela_principal()
+        main_screen()
 
         while True:
             try:
                 player1 = int(input(Fore.LIGHTRED_EX + 'Escolha uma opção primeiro jogador: '))
-                if validar_entrada(player1):
+                if validate_input(player1):
                     break
             except ValueError:
                 print(Fore.RED + 'Entrada inválida! Insira um número!')
 
-        limpar_tela()
+        clear_screen()
 
-        # Escolher se o jogador quer jogar contra pessoa ou o computador
+        # Choose whether the player wants to play against a person or the computer
         mode = input(Fore.YELLOW + 'Você quer jogar contra o computador (c) ou contra pessoa (p)? ').lower()
 
-        # Jogar contra o computador e selecionar o nível de dificuldade
+        # Play against the computer and select the difficulty level
         if mode == 'c':
             difficulty = input(Fore.RESET + f'''Escolha o nível de dificuldade
                     {Fore.GREEN} [f] {Fore.CYAN}Fácil
@@ -128,20 +128,20 @@ def jogar_jogo():
                     {Fore.GREEN} [d] {Fore.CYAN}Difícil
                     ''').lower()
 
-            difficulty_modes = {'f': modo_facil, 'm': modo_medio, 'd': modo_dificil}
-            player2 = difficulty_modes.get(difficulty, modo_facil)()
+            difficulty_modes = {'f': easy_mode, 'm': medium_mode, 'd': hard_mode}
+            player2 = difficulty_modes.get(difficulty, easy_mode)()
 
-            # Adiciona as escolhas ao histórico para análise de desempenho
+            # Adds choices to history for performance analysis
             player1_choices.append(player1)
             computer_choices.append(player2)
 
-        # Jogar contra outra pessoa
+        # Play against someone else
         elif mode == 'p':
-            tela_principal()
+            main_screen()
             while True:
                 try:
                     player2 = int(input(Fore.LIGHTRED_EX + 'Escolha uma opção segundo jogador: '))
-                    if validar_entrada(player2):
+                    if validate_input(player2):
                         break
                 except ValueError:
                     print(Fore.RED + 'Entrada inválida! Insira um número')
@@ -150,13 +150,13 @@ def jogar_jogo():
             print(Fore.RED + 'Opção inválida! Escolha "c" para computador ou "p" para pessoa')
             continue
 
-        limpar_tela()
+        clear_screen()
 
-        animacao()
+        animation()
 
-        exibir_escolhas(player1, player2, is_computer=(mode == 'c'))
+        display_choice(player1, player2, is_computer=(mode == 'c'))
 
-        result = determinar_vencedor(player1, player2)
+        result = determine_winner(player1, player2)
         if result == 1:
             score_player1 += 1
         elif result == 2:
@@ -164,16 +164,16 @@ def jogar_jogo():
 
         print(Fore.YELLOW + f'\nPlacar: Jogador 1: {score_player1} | Jogador 2: {score_player2}')
 
-        # Analisar desempenho apenas no modo contra o computador
+        # Analyze performance only in computer mode
         if mode == 'c':
-            analisar_performance()
+            analyze_performance()
 
         play_again = input(Fore.YELLOW + '\nQuer jogar novamente? (s/n): ').lower()
         if play_again != 's':
             print(Fore.LIGHTBLUE_EX + 'Até logo!')
             sleep(2)
             exit()
-        limpar_tela()
+        clear_screen()
 
-jogar_jogo()
 
+play_game()
